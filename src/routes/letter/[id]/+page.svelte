@@ -17,7 +17,7 @@
 </svelte:head>
 
 <div class="min-h-screen bg-[#fdfbf7] flex items-center justify-center p-4 md:p-8 font-sans selection:bg-[#e2e8f0]">
-  <div class="w-full max-w-2xl bg-[#fdfaeb] p-10 md:p-16 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.08)] border border-stone-200 relative">
+  <div class="w-full max-w-2xl bg-[#fdfaeb] p-10 md:p-16 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.08)] border border-stone-200 relative animate-fade-in-up">
     
     <!-- Paper texture hints -->
     <div class="absolute inset-0 opacity-[0.01] pointer-events-none mix-blend-multiply" style="background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E');"></div>
@@ -55,3 +55,19 @@
 
   </div>
 </div>
+
+<style>
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .animate-fade-in-up {
+    animation: fadeInUp 0.8s ease-out forwards;
+  }
+</style>
