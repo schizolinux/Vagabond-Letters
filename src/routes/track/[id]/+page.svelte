@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import type { PageData } from './$types';
+  import confetti from 'canvas-confetti';
   
   let { data }: { data: PageData } = $props();
   let letter = $derived(data.letter);
@@ -18,6 +19,15 @@
     progressPercentage = (timeElapsed / totalJourneyTime) * 100;
     
     if (progressPercentage >= 100) {
+      if (!isArrived) {
+        // Trigger confetti exactly once when it hits 100%
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#44403c', '#57534e', '#a8a29e', '#e7e5e4']
+        });
+      }
       progressPercentage = 100;
       isArrived = true;
       statusText = "Your letter has arrived!";
@@ -57,7 +67,7 @@
 </svelte:head>
 
 <div class="min-h-screen bg-[#fdfbf7] flex flex-col items-center justify-center p-4 font-sans text-[#1a202c]">
-  <div class="w-full max-w-3xl bg-white p-8 md:p-12 shadow-sm border border-[#e2e8f0] rounded-xl text-center relative overflow-hidden">
+  <div class="w-full max-w-3xl bg-white p-8 md:p-12 shadow-sm hover:shadow-md border border-[#e2e8f0] rounded-xl text-center relative overflow-hidden transition-all duration-300 hover:-translate-y-1">
     
     <!-- Decorative top accent -->
     <div class="absolute top-0 left-0 right-0 h-1 bg-stone-800"></div>
@@ -103,7 +113,7 @@
 
     {#if isArrived}
       <div class="mt-12 animate-fade-in-up">
-        <a href={`/letter/${letter.id}`} class="inline-block py-3 px-8 bg-stone-800 hover:bg-stone-700 text-white font-medium rounded-lg shadow-sm transition-colors duration-200">
+        <a href={`/letter/${letter.id}`} class="inline-block py-3 px-8 bg-stone-800 hover:bg-stone-700 hover:-translate-y-0.5 text-white font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-200">
           Open Letter
         </a>
       </div>

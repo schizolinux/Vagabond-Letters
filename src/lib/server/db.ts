@@ -9,6 +9,8 @@ const db = new Database(dbPath, { verbose: console.log });
 
 db.pragma('journal_mode = WAL');
 
+// Ensure the table exists. Note: on Vercel this is ephemeral.
+// For true persistence a cloud DB is needed, but this allows the code to run.
 db.exec(`
   CREATE TABLE IF NOT EXISTS letters (
     id TEXT PRIMARY KEY,
@@ -16,9 +18,12 @@ db.exec(`
     to_city TEXT NOT NULL,
     sender TEXT NOT NULL,
     recipient TEXT NOT NULL,
+    sender_email TEXT NOT NULL,
+    recipient_email TEXT NOT NULL,
     message TEXT NOT NULL,
     dispatch_time INTEGER NOT NULL,
-    arrival_time INTEGER NOT NULL
+    arrival_time INTEGER NOT NULL,
+    email_sent INTEGER DEFAULT 0
   )
 `);
 

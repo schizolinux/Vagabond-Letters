@@ -26,6 +26,10 @@
 	},
 	"dependencies": {
 		"@sveltejs/adapter-vercel": "^6.3.3",
-		"better-sqlite3": "^12.10.0"
+		"@types/canvas-confetti": "^1.9.0",
+		"@types/nodemailer": "^8.0.0",
+		"better-sqlite3": "^12.10.0",
+		"canvas-confetti": "^1.9.4",
+		"nodemailer": "^8.0.10"
 	}
 }

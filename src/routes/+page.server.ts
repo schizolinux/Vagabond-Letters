@@ -34,9 +34,11 @@ export const actions: Actions = {
     const to_city = data.get('to_city')?.toString();
     const sender = data.get('sender')?.toString();
     const recipient = data.get('recipient')?.toString();
+    const sender_email = data.get('sender_email')?.toString();
+    const recipient_email = data.get('recipient_email')?.toString();
     const message = data.get('message')?.toString();
 
-    if (!from_city || !to_city || !sender || !recipient || !message) {
+    if (!from_city || !to_city || !sender || !recipient || !sender_email || !recipient_email || !message) {
       return { success: false, error: 'All fields are required.' };
     }
 
@@ -65,11 +67,11 @@ export const actions: Actions = {
     const id = crypto.randomUUID();
 
     const stmt = db.prepare(`
-      INSERT INTO letters (id, from_city, to_city, sender, recipient, message, dispatch_time, arrival_time)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO letters (id, from_city, to_city, sender, recipient, sender_email, recipient_email, message, dispatch_time, arrival_time)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
-    stmt.run(id, from_city, to_city, sender, recipient, message, dispatch_time, arrival_time);
+    stmt.run(id, from_city, to_city, sender, recipient, sender_email, recipient_email, message, dispatch_time, arrival_time);
 
     throw redirect(303, `/track/${id}`);
   }

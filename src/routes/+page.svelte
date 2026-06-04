@@ -16,7 +16,7 @@
       <p class="text-lg text-stone-600 max-w-lg mx-auto">Embrace the anticipation. Send a digital letter that wanders across the world in real time.</p>
     </header>
 
-    <div class="bg-white p-8 md:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-[#f1f5f9] rounded-xl">
+    <div class="bg-white p-8 md:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] border border-[#f1f5f9] rounded-xl transition-all duration-300 hover:-translate-y-1">
       <form method="POST" use:enhance class="space-y-6">
         
         {#if form?.error}
@@ -38,6 +38,22 @@
             <input type="text" id="recipient" name="recipient" required
               class="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg focus:ring-2 focus:ring-stone-600 focus:border-stone-600 outline-none transition-all placeholder-stone-400"
               placeholder="e.g. Mr. Darcy">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-1">
+            <label for="sender_email" class="block text-sm font-medium text-stone-600">Your Email (To receive updates)</label>
+            <input type="email" id="sender_email" name="sender_email" required
+              class="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg focus:ring-2 focus:ring-stone-600 focus:border-stone-600 outline-none transition-all placeholder-stone-400"
+              placeholder="jane@example.com">
+          </div>
+
+          <div class="space-y-1">
+            <label for="recipient_email" class="block text-sm font-medium text-stone-600">Recipient Email (To notify on arrival)</label>
+            <input type="email" id="recipient_email" name="recipient_email" required
+              class="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg focus:ring-2 focus:ring-stone-600 focus:border-stone-600 outline-none transition-all placeholder-stone-400"
+              placeholder="darcy@example.com">
           </div>
         </div>
 
@@ -65,7 +81,7 @@
         </div>
 
         <button type="submit"
-          class="w-full py-4 px-6 bg-stone-800 hover:bg-stone-700 text-white font-medium rounded-lg shadow-sm transition-colors duration-200 flex items-center justify-center space-x-2">
+          class="w-full py-4 px-6 bg-stone-800 hover:bg-stone-700 hover:-translate-y-0.5 text-white font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-center space-x-2">
           <span>Dispatch Letter</span>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-80" viewBox="0 0 20 20" fill="currentColor">
             <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
