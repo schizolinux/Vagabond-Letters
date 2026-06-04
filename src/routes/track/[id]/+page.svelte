@@ -60,10 +60,10 @@
   <div class="w-full max-w-3xl bg-white p-8 md:p-12 shadow-sm border border-[#e2e8f0] rounded-xl text-center relative overflow-hidden">
     
     <!-- Decorative top accent -->
-    <div class="absolute top-0 left-0 right-0 h-1 bg-[#1e3a8a]"></div>
+    <div class="absolute top-0 left-0 right-0 h-1 bg-stone-800"></div>
 
-    <h1 class="text-3xl md:text-4xl font-serif text-[#1e3a8a] mb-2 tracking-tight">Tracking Letter</h1>
-    <p class="text-[#64748b] mb-12 text-lg">A message from <strong class="text-[#334155] font-medium">{letter.sender}</strong> to <strong class="text-[#334155] font-medium">{letter.recipient}</strong></p>
+    <h1 class="text-3xl md:text-4xl font-serif text-stone-800 mb-2 tracking-tight">Tracking Letter</h1>
+    <p class="text-stone-600 mb-12 text-lg">A message from <strong class="text-stone-800 font-medium">{letter.sender}</strong> to <strong class="text-stone-800 font-medium">{letter.recipient}</strong></p>
 
     <div class="flex justify-between items-end mb-4 px-2">
       <div class="text-left">
@@ -77,7 +77,7 @@
           class="absolute bottom-0 -ml-3 transition-all duration-300 ease-out" 
           style="left: {progressPercentage}%;"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-[#991b1b]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-stone-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
           </svg>
         </div>
@@ -90,9 +90,9 @@
     </div>
 
     <!-- The Beautiful Progress Bar -->
-    <div class="w-full bg-[#f1f5f9] rounded-full h-3 mb-8 overflow-hidden border border-[#e2e8f0] relative">
+    <div class="w-full bg-stone-100 rounded-full h-3 mb-8 overflow-hidden border border-stone-200 relative">
       <div 
-        class="bg-[#1e3a8a] h-3 rounded-full transition-all duration-300 ease-out" 
+        class="bg-stone-800 h-3 rounded-full transition-all duration-300 ease-out"
         style="width: {progressPercentage}%"
       ></div>
     </div>
@@ -103,7 +103,7 @@
 
     {#if isArrived}
       <div class="mt-12 animate-fade-in-up">
-        <a href={`/letter/${letter.id}`} class="inline-block py-3 px-8 bg-[#991b1b] hover:bg-[#7f1d1d] text-white font-medium rounded-lg shadow-sm transition-colors duration-200">
+        <a href={`/letter/${letter.id}`} class="inline-block py-3 px-8 bg-stone-800 hover:bg-stone-700 text-white font-medium rounded-lg shadow-sm transition-colors duration-200">
           Open Letter
         </a>
       </div>
