@@ -1,5 +1,5 @@
 import type { RequestHandler } from './$types';
-import db from '$lib/server/db';
+import sql from '$lib/server/db';
 import nodemailer from 'nodemailer';
 
 export const GET: RequestHandler = async ({ url }) => {
@@ -12,15 +12,15 @@ export const GET: RequestHandler = async ({ url }) => {
     try {
         const now = Date.now();
         // Find letters that have arrived but haven't had emails sent
-        const lettersToNotify = db.prepare(`
+        const lettersToNotify = await sql`
             SELECT letters.*,
                    sender.name as sender_name, sender.email as sender_email,
                    recipient.name as recipient_name, recipient.email as recipient_email
             FROM letters
             INNER JOIN users as sender ON letters.sender_id = sender.id
             INNER JOIN users as recipient ON letters.recipient_id = recipient.id
-            WHERE arrival_time <= ? AND email_sent = 0
-        `).all(now) as any[];
+            WHERE arrival_time <= ${now} AND email_sent = 0
+        ` as any[];
 
         if (lettersToNotify.length === 0) {
             return new Response('No new emails to send.', { status: 200 });
@@ -36,7 +36,6 @@ export const GET: RequestHandler = async ({ url }) => {
             }
         });
 
-        const updateStmt = db.prepare('UPDATE letters SET email_sent = 1 WHERE id = ?');
         let emailsSent = 0;
 
         for (const letter of lettersToNotify) {
@@ -72,7 +71,7 @@ export const GET: RequestHandler = async ({ url }) => {
                     `
                 });
 
-                updateStmt.run(letter.id);
+                await sql`UPDATE letters SET email_sent = 1 WHERE id = ${letter.id}`;
                 emailsSent++;
             } catch (err) {
                 console.error(`Failed to send email for letter ${letter.id}:`, err);
