@@ -13,7 +13,12 @@ export const GET: RequestHandler = async ({ url }) => {
         const now = Date.now();
         // Find letters that have arrived but haven't had emails sent
         const lettersToNotify = db.prepare(`
-            SELECT * FROM letters
+            SELECT letters.*,
+                   sender.name as sender_name, sender.email as sender_email,
+                   recipient.name as recipient_name, recipient.email as recipient_email
+            FROM letters
+            INNER JOIN users as sender ON letters.sender_id = sender.id
+            INNER JOIN users as recipient ON letters.recipient_id = recipient.id
             WHERE arrival_time <= ? AND email_sent = 0
         `).all(now) as any[];
 
@@ -45,11 +50,11 @@ export const GET: RequestHandler = async ({ url }) => {
                 await transporter.sendMail({
                     from: `"Vagabond Letters" <${process.env.EMAIL_USER}>`,
                     to: letter.recipient_email,
-                    subject: `A letter from ${letter.sender} has arrived!`,
-                    text: `Dear ${letter.recipient},\n\nA letter from ${letter.sender} (dispatched from ${letter.from_city}) has finally arrived in ${letter.to_city}.\n\nYou can read it here: ${letterUrl}`,
+                    subject: `A letter from ${letter.sender_name} has arrived!`,
+                    text: `Dear ${letter.recipient_name},\n\nA letter from ${letter.sender_name} (dispatched from ${letter.from_city}) has finally arrived in ${letter.to_city}.\n\nYou can read it here: ${letterUrl}`,
                     html: `
-                        <p>Dear ${letter.recipient},</p>
-                        <p>A letter from <strong>${letter.sender}</strong> (dispatched from ${letter.from_city}) has finally arrived in ${letter.to_city}.</p>
+                        <p>Dear ${letter.recipient_name},</p>
+                        <p>A letter from <strong>${letter.sender_name}</strong> (dispatched from ${letter.from_city}) has finally arrived in ${letter.to_city}.</p>
                         <p><a href="${letterUrl}" style="display:inline-block;padding:10px 20px;background-color:#292524;color:white;text-decoration:none;border-radius:5px;">Read your letter</a></p>
                     `
                 });
@@ -58,11 +63,11 @@ export const GET: RequestHandler = async ({ url }) => {
                 await transporter.sendMail({
                     from: `"Vagabond Letters" <${process.env.EMAIL_USER}>`,
                     to: letter.sender_email,
-                    subject: `Your letter to ${letter.recipient} has arrived!`,
-                    text: `Dear ${letter.sender},\n\nGood news! The letter you sent to ${letter.recipient} in ${letter.to_city} has completed its journey and arrived successfully.\n\nThey have been notified via email.`,
+                    subject: `Your letter to ${letter.recipient_name} has arrived!`,
+                    text: `Dear ${letter.sender_name},\n\nGood news! The letter you sent to ${letter.recipient_name} in ${letter.to_city} has completed its journey and arrived successfully.\n\nThey have been notified via email.`,
                     html: `
-                        <p>Dear ${letter.sender},</p>
-                        <p>Good news! The letter you sent to <strong>${letter.recipient}</strong> in ${letter.to_city} has completed its journey and arrived successfully.</p>
+                        <p>Dear ${letter.sender_name},</p>
+                        <p>Good news! The letter you sent to <strong>${letter.recipient_name}</strong> in ${letter.to_city} has completed its journey and arrived successfully.</p>
                         <p>They have been notified via email.</p>
                     `
                 });

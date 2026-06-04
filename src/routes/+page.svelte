@@ -1,8 +1,12 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
-  import type { ActionData } from './$types';
+  import type { ActionData, PageData } from './$types';
+  import { page } from '$app/stores';
 
-  let { form }: { form: ActionData } = $props();
+  let { data, form }: { data: PageData, form: ActionData } = $props();
+  let user = $derived(data.user);
+  let friends = $derived(data.friends || []);
+  let prefillFriendId = $derived($page.url.searchParams.get('to'));
 </script>
 
 <svelte:head>
@@ -17,6 +21,22 @@
     </header>
 
     <div class="bg-white p-8 md:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] border border-[#f1f5f9] rounded-xl transition-all duration-300 hover:-translate-y-1">
+      {#if !user}
+        <div class="text-center py-8">
+          <h2 class="text-2xl font-serif text-stone-800 mb-4">Join to start sending</h2>
+          <p class="text-stone-600 mb-8">You need an account to send letters to your friends.</p>
+          <div class="flex justify-center space-x-4">
+            <a href="/login" class="px-6 py-3 bg-stone-100 text-stone-800 font-medium rounded-lg hover:bg-stone-200 transition-colors">Log In</a>
+            <a href="/register" class="px-6 py-3 bg-stone-800 text-white font-medium rounded-lg hover:bg-stone-700 transition-colors">Sign Up</a>
+          </div>
+        </div>
+      {:else if friends.length === 0}
+        <div class="text-center py-8">
+          <h2 class="text-2xl font-serif text-stone-800 mb-4">You have no friends yet!</h2>
+          <p class="text-stone-600 mb-8">Add a friend to your address book before sending a letter.</p>
+          <a href="/dashboard/friends" class="px-6 py-3 bg-stone-800 text-white font-medium rounded-lg hover:bg-stone-700 transition-colors">Find Friends</a>
+        </div>
+      {:else}
       <form method="POST" use:enhance class="space-y-6">
         
         {#if form?.error}
@@ -25,36 +45,15 @@
           </div>
         {/if}
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="space-y-1">
-            <label for="sender" class="block text-sm font-medium text-stone-600">From (Your Name)</label>
-            <input type="text" id="sender" name="sender" required
-              class="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg focus:ring-2 focus:ring-stone-600 focus:border-stone-600 outline-none transition-all placeholder-stone-400"
-              placeholder="e.g. Jane Austen">
-          </div>
-          
-          <div class="space-y-1">
-            <label for="recipient" class="block text-sm font-medium text-stone-600">To (Recipient Name)</label>
-            <input type="text" id="recipient" name="recipient" required
-              class="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg focus:ring-2 focus:ring-stone-600 focus:border-stone-600 outline-none transition-all placeholder-stone-400"
-              placeholder="e.g. Mr. Darcy">
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="space-y-1">
-            <label for="sender_email" class="block text-sm font-medium text-stone-600">Your Email (To receive updates)</label>
-            <input type="email" id="sender_email" name="sender_email" required
-              class="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg focus:ring-2 focus:ring-stone-600 focus:border-stone-600 outline-none transition-all placeholder-stone-400"
-              placeholder="jane@example.com">
-          </div>
-
-          <div class="space-y-1">
-            <label for="recipient_email" class="block text-sm font-medium text-stone-600">Recipient Email (To notify on arrival)</label>
-            <input type="email" id="recipient_email" name="recipient_email" required
-              class="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg focus:ring-2 focus:ring-stone-600 focus:border-stone-600 outline-none transition-all placeholder-stone-400"
-              placeholder="darcy@example.com">
-          </div>
+        <div class="space-y-1">
+          <label for="recipient_id" class="block text-sm font-medium text-stone-600">To (Friend)</label>
+          <select id="recipient_id" name="recipient_id" required
+            class="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg focus:ring-2 focus:ring-stone-600 focus:border-stone-600 outline-none transition-all text-stone-800">
+            <option value="" disabled selected={!prefillFriendId}>Select a friend...</option>
+            {#each friends as friend}
+              <option value={friend.id} selected={friend.id === prefillFriendId}>{friend.name} ({friend.email})</option>
+            {/each}
+          </select>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -88,6 +87,7 @@
           </svg>
         </button>
       </form>
+      {/if}
     </div>
   </div>
 </div>
