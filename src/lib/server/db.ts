@@ -1,7 +1,9 @@
 import { neon } from '@neondatabase/serverless';
 
 // The DATABASE_URL is automatically populated by Vercel Postgres / Neon
-const sql = neon(process.env.DATABASE_URL || '');
+// We use a dummy connection string during Vercel build time if the env variable isn't loaded yet
+// to prevent SvelteKit from crashing during its static analysis phase.
+const sql = neon(process.env.DATABASE_URL || 'postgresql://dummy:dummy@dummy.neon.tech/dummy?sslmode=require');
 
 // Initialize schema for the Social Platform
 async function initDb() {
