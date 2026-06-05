@@ -1,6 +1,6 @@
 import { redirect } from '@sveltejs/kit';
 import type { Actions } from './$types';
-import db from '$lib/server/db';
+import sql from '$lib/server/db';
 import crypto from 'crypto';
 
 function haversine(lat1: number, lon1: number, lat2: number, lon2: number) {
@@ -27,16 +27,36 @@ async function getCoordinates(city: string) {
   return null;
 }
 
+import type { PageServerLoad } from './$types';
+
+export const load: PageServerLoad = async ({ locals }) => {
+	// If not logged in, they can't send a letter. They will see the landing page and be directed to login.
+  let friends: any[] = [];
+  if (locals.user) {
+    friends = await sql`
+      SELECT users.id, users.name, users.email
+      FROM friends
+      INNER JOIN users ON friends.friend_id = users.id
+      WHERE friends.user_id = ${locals.user.id}
+    `;
+  }
+
+  return { friends };
+}
+
 export const actions: Actions = {
-  default: async ({ request }) => {
+  default: async ({ request, locals }) => {
+    if (!locals.user) {
+      throw redirect(303, '/login');
+    }
+
     const data = await request.formData();
     const from_city = data.get('from_city')?.toString();
     const to_city = data.get('to_city')?.toString();
-    const sender = data.get('sender')?.toString();
-    const recipient = data.get('recipient')?.toString();
+    const recipient_id = data.get('recipient_id')?.toString();
     const message = data.get('message')?.toString();
 
-    if (!from_city || !to_city || !sender || !recipient || !message) {
+    if (!from_city || !to_city || !recipient_id || !message) {
       return { success: false, error: 'All fields are required.' };
     }
 
@@ -64,12 +84,16 @@ export const actions: Actions = {
 
     const id = crypto.randomUUID();
 
-    const stmt = db.prepare(`
-      INSERT INTO letters (id, from_city, to_city, sender, recipient, message, dispatch_time, arrival_time)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `);
+    // Verify recipient is a friend
+    const friendCheck = await sql`SELECT 1 FROM friends WHERE user_id = ${locals.user.id} AND friend_id = ${recipient_id}`;
+    if (friendCheck.length === 0) {
+      return { success: false, error: 'You can only send letters to friends.' };
+    }
 
-    stmt.run(id, from_city, to_city, sender, recipient, message, dispatch_time, arrival_time);
+    await sql`
+      INSERT INTO letters (id, from_city, to_city, sender_id, recipient_id, message, dispatch_time, arrival_time)
+      VALUES (${id}, ${from_city}, ${to_city}, ${locals.user.id}, ${recipient_id}, ${message}, ${dispatch_time}, ${arrival_time})
+    `;
 
     throw redirect(303, `/track/${id}`);
   }
