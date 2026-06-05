@@ -46,7 +46,7 @@ export const actions: Actions = {
 
 		} catch (error) {
 			console.error(error);
-			return fail(500, { error: 'Internal server error.' });
+			return fail(500, { error: 'DB Error: ' + String(error) });
 		}
 
 		throw redirect(303, '/dashboard');
