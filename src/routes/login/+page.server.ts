@@ -1,6 +1,6 @@
 import { redirect, fail } from '@sveltejs/kit';
 import type { Actions } from './$types';
-import db from '$lib/server/db';
+import sql from '$lib/server/db';
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 
@@ -15,7 +15,8 @@ export const actions: Actions = {
 		}
 
 		try {
-			const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email) as any;
+			const result = await sql`SELECT * FROM users WHERE email = ${email}`;
+			const user = result[0];
 
 			if (!user) {
 				return fail(400, { error: 'Invalid email or password.' });
@@ -30,10 +31,10 @@ export const actions: Actions = {
 			const sessionId = crypto.randomUUID();
 			const expiresAt = Date.now() + 1000 * 60 * 60 * 24 * 30; // 30 days
 
-			db.prepare(`
+			await sql`
 				INSERT INTO sessions (id, user_id, expires_at)
-				VALUES (?, ?, ?)
-			`).run(sessionId, user.id, expiresAt);
+				VALUES (${sessionId}, ${user.id}, ${expiresAt})
+			`;
 
 			cookies.set('session', sessionId, {
 				path: '/',

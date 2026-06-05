@@ -1,6 +1,6 @@
 import { redirect, fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import db from '$lib/server/db';
+import sql from '$lib/server/db';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) {
@@ -8,12 +8,12 @@ export const load: PageServerLoad = async ({ locals }) => {
 	}
 
 	// Fetch current friends
-	const friends = db.prepare(`
+	const friends = await sql`
 		SELECT users.id, users.name, users.email
 		FROM friends
 		INNER JOIN users ON friends.friend_id = users.id
-		WHERE friends.user_id = ?
-	`).all(locals.user.id);
+		WHERE friends.user_id = ${locals.user.id}
+	`;
 
 	return { friends };
 };
@@ -29,16 +29,18 @@ export const actions: Actions = {
 		if (email === locals.user.email) return fail(400, { error: 'You cannot add yourself.' });
 
 		try {
-			const friend = db.prepare('SELECT id FROM users WHERE email = ?').get(email) as { id: string } | undefined;
+			const result = await sql`SELECT id FROM users WHERE email = ${email}`;
+			const friend = result[0];
 
 			if (!friend) {
 				return fail(404, { error: 'No user found with that email address.' });
 			}
 
 			// Add friend (both ways for simplicity in this prototype)
-			db.prepare(`
-				INSERT OR IGNORE INTO friends (user_id, friend_id) VALUES (?, ?), (?, ?)
-			`).run(locals.user.id, friend.id, friend.id, locals.user.id);
+			await sql`
+				INSERT INTO friends (user_id, friend_id) VALUES (${locals.user.id}, ${friend.id}), (${friend.id}, ${locals.user.id})
+				ON CONFLICT DO NOTHING
+			`;
 
 			return { success: true };
 		} catch (e) {

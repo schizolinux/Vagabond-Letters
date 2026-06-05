@@ -1,6 +1,6 @@
 import { redirect, fail } from '@sveltejs/kit';
 import type { Actions } from './$types';
-import db from '$lib/server/db';
+import sql from '$lib/server/db';
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 
@@ -17,27 +17,27 @@ export const actions: Actions = {
 
 		try {
 			// Check if user exists
-			const existingUser = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
-			if (existingUser) {
+			const existingUserResult = await sql`SELECT id FROM users WHERE email = ${email}`;
+			if (existingUserResult.length > 0) {
 				return fail(400, { error: 'An account with that email already exists.' });
 			}
 
 			const userId = crypto.randomUUID();
 			const passwordHash = await bcrypt.hash(password, 10);
 
-			db.prepare(`
+			await sql`
 				INSERT INTO users (id, email, password_hash, name)
-				VALUES (?, ?, ?, ?)
-			`).run(userId, email, passwordHash, name);
+				VALUES (${userId}, ${email}, ${passwordHash}, ${name})
+			`;
 
 			// Create session
 			const sessionId = crypto.randomUUID();
 			const expiresAt = Date.now() + 1000 * 60 * 60 * 24 * 30; // 30 days
 
-			db.prepare(`
+			await sql`
 				INSERT INTO sessions (id, user_id, expires_at)
-				VALUES (?, ?, ?)
-			`).run(sessionId, userId, expiresAt);
+				VALUES (${sessionId}, ${userId}, ${expiresAt})
+			`;
 
 			cookies.set('session', sessionId, {
 				path: '/',
